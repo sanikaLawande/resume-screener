@@ -50,10 +50,14 @@ def get_email(text):
     return emails[0] if emails else 'Not found'
 
 def get_rank(score):
-    if score >= 50: return 'Excellent'
-    if score >= 30: return 'Good'
-    if score >= 15: return 'Average'
-    return 'Below Average'
+    if score >= 80:
+        return 'Excellent'
+    elif score >= 60:
+        return 'Good'
+    elif score >= 45:
+        return 'Average'
+    else:
+        return 'Below Average'
 
 def lambda_Handler(event, context):
     try:

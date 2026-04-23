@@ -1,121 +1,116 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import UploadSection from './components/UploadSection'
+import StatsBar from './components/StatsBar'
+import ResumeTable from './components/ResumeTable'
 
-function App() {
-  const [count, setCount] = useState(0)
+const API = import.meta.env.VITE_API_URL
+
+export default function App() {
+  const [resumes, setResumes] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const fetchResumes = async () => {
+    setLoading(true)
+
+    try {
+      const res = await axios.get(`${API}/resumes`)
+      console.log("API RESPONSE:", res.data)
+
+      let data = []
+
+      // ✅ Handle Lambda proxy (body is string)
+      if (res.data && typeof res.data.body === 'string') {
+        data = JSON.parse(res.data.body)
+      }
+
+      // ✅ Handle direct array response
+      else if (Array.isArray(res.data)) {
+        data = res.data
+      }
+
+      // ✅ Handle unexpected formats safely
+      else if (res.data && typeof res.data === 'object') {
+        data = res.data.body || []
+      }
+
+      // ✅ Final safety check
+      setResumes(Array.isArray(data) ? data : [])
+
+    } catch (err) {
+      console.error('Error fetching resumes:', err)
+      setResumes([]) // prevents crash
+    }
+
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchResumes()
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
 
-      <div className="ticks"></div>
+      {/* Header */}
+      <div style={{
+        backgroundColor: '#1e293b',
+        padding: '20px 40px',
+        borderBottom: '1px solid #334155'
+      }}>
+        <h1 style={{ color: '#60a5fa', fontSize: '26px', margin: 0 }}>
+          AI Resume Screener
+        </h1>
+        <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+          Powered by React + AWS Lambda (Python) + DynamoDB + S3
+        </p>
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Main Content */}
+      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {/* Upload Section */}
+        <UploadSection onUploadComplete={fetchResumes} />
+
+        {/* Stats */}
+        <StatsBar resumes={resumes} />
+
+        {/* Resume Table */}
+        <div style={{
+          backgroundColor: '#1e293b',
+          borderRadius: '12px',
+          border: '1px solid #334155'
+        }}>
+          <div style={{
+            padding: '20px 30px',
+            borderBottom: '1px solid #334155',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <h2 style={{ margin: 0, color: '#e2e8f0' }}>
+              Screened Resumes ({resumes.length})
+            </h2>
+
+            <button
+              onClick={fetchResumes}
+              style={{
+                backgroundColor: '#334155',
+                color: 'white',
+                border: 'none',
+                padding: '8px 18px',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Refresh
+            </button>
+          </div>
+
+          <ResumeTable resumes={resumes} loading={loading} />
+        </div>
+
+      </div>
+    </div>
   )
 }
-
-export default App
