@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin':  '*',
+                'Access-Control-Allow-Origin':  'https://main.d24kkwmtqcku3u.amplifyapp.com',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Allow-Methods': 'GET,OPTIONS'
             },

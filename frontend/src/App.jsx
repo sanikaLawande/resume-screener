@@ -23,15 +23,22 @@ export default function App() {
       if (res.data && typeof res.data.body === 'string') {
         data = JSON.parse(res.data.body)
       }
-
       // ✅ Handle direct array response
       else if (Array.isArray(res.data)) {
         data = res.data
       }
-
       // ✅ Handle unexpected formats safely
       else if (res.data && typeof res.data === 'object') {
         data = res.data.body || []
+      }
+
+      // ✅ NEW: Sort by Date (Newest Tested First)
+      if (Array.isArray(data)) {
+        data.sort((a, b) => {
+          // Converts ISO strings from your Python backend into JS Dates for comparison
+          // 'b - a' ensures the most recent date is at index 0
+          return new Date(b.uploadedAt) - new Date(a.uploadedAt);
+        });
       }
 
       // ✅ Final safety check

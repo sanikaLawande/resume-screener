@@ -26,9 +26,9 @@ def lambda_Handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": "https://main.d24kkwmtqcku3u.amplifyapp.com",
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "OPTIONS,POST"
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
             },
             "body": json.dumps({
                 "uploadUrl": url
